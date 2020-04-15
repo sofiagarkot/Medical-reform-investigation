@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(readxl)
+```
+
+
+
+```{r}
+data.population <- read_excel("HistoricalPopulation.xlsx")
+data.population
+```
+
+```{r}
+data.GDP <- read_excel("GDPperCapita.xlsx")
+data.GDP
+```
+```{r}
+postsoviet_countries <- c("Armenia", "Azerbaijan", 'Belarus', "Estonia", "Georgia", "Kazakhstan", "Kyrgyzstan", "Latvia", "Lithuania", "Moldova", "Russia", "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan")
+years <- c("Country", "1991.0", "1992.0", "1993.0", "1994.0", "1995.0", "1996.0", "1997.0", "1998.0", "1999.0", "2000.0", "2001.0", "2002.0", "2003.0", "2004.0", "2005.0", "2006.0", "2007.0", "2008.0", "2009.0", "2010.0", "2011.0", "2012.0", "2013.0", "2014.0", "2015.0", "2016.0", "2017.0", "2018.0")
+
+data.population1 <- data.population[data.population$Country %in% postsoviet_countries, years]
+data.GDP1 <- data.GDP[data.GDP$Country %in% postsoviet_countries, years]
+data.population1
+```
+
+
+```{r}
+population_diff <- c()
+gdp_diff <- c()
+i <- 1
+for (country in postsoviet_countries) {
+  if (country != "Ukraine"){
+      population_diff[i] = sum(abs(as.numeric(data.population1[data.population1$Country == country, years[2:length(years)]]) - as.numeric(data.population1[data.population1$Country == "Ukraine", years[2:length(years)]]))) / (length(years) - 1)
+  gdp_diff[i] = sum(abs(as.numeric(data.GDP1[data.GDP1$Country == country, years[2:length(years)]]) - as.numeric(data.GDP1[data.GDP1$Country == "Ukraine", years[2:length(years)]]))) / (length(years) - 1)
+  i <- i + 1
+  }
+}
+population_diff
+gdp_diff
+```
+```{r}
+min(population_diff)
+min(gdp_diff)
+```
+
+Comparing by average life expectancy 
+```{r}
+library("readxl")
+life_exp_data <- read_excel("lifeExpectancy.xls", sheet=1)
+life_exp_data
+colnames(life_exp_data)
+```
+
+```{r}
+to_compare_countries = c("Belarus","Croatia","Hungary","Romania","Armenia", "Azerbaijan", "Estonia", "Georgia", "Kazakhstan",  "Latvia", "Lithuania", "Moldova", "Russian Federation", "Tajikistan", "Turkmenistan",  "Uzbekistan")
+index_on_Ukraine = which(life_exp_data[['Data Source']]=="Ukraine")
+life_expectancy_diff = c()
+i <- 1
+for (country in to_compare_countries) {
+  index_on_country = which(life_exp_data[['Data Source']]==country)
+  country_diff = c()
+      
+  j = 1
+  for (col in colnames(life_exp_data)) {
+    
+    if (!col=='Data Source' & !col == 'World Development Indicators' & !col == '...3' & !col == '...4' & !col == '...64') {
+           if ( !is.null(as.numeric(life_exp_data[[col]][index_on_country])) & !is.null(as.numeric(life_exp_data[[col]][index_on_Ukraine])) & !is.na(as.numeric(life_exp_data[[col]][index_on_Ukraine])) & !is.na(as.numeric(life_exp_data[[col]][index_on_country])) ){
+               country_diff[j] = abs(as.numeric(life_exp_data[[col]][index_on_country]) - as.numeric(life_exp_data[[col]][index_on_Ukraine]))
+        j = j + 1
+                   }
+                }
+              }
+  life_expectancy_diff[i] = sum(country_diff)
+  i = i + 1
+}
+life_expectancy_diff
+min(life_expectancy_diff)
+```
+
+So, on overall comparing by life expectancy Belarus is the 'nearest' country to Ukraine. The other indicators move also in similar to Ukraine way. Let's plot and see them.
+
+```{r}
+Belarus_life_exp = c()
+Ukraine_life_exp = c()
+years3 = c()
+i = 1
+y = 1958
+index_on_belarus = which(life_exp_data[['Data Source']]=='Belarus')
+for (col in colnames(life_exp_data)) {
+  if (!col=='Data Source' & !col == 'World Development Indicators' & !col == '...3' & !col == '...4' & !col == '...64') {
+    Belarus_life_exp[i] = as.numeric(life_exp_data[[col]][index_on_belarus])
+    Ukraine_life_exp[i] = as.numeric(life_exp_data[[col]][index_on_Ukraine])
+    years[i] = y
+    i = i + 1
+    y = y + 1
+   }
+}
+plot(years3, Ukraine_life_exp, type = 'l' , col = 'blue', ylab = "Life expectancy")
+lines(years3, Belarus_life_exp, type = 'l' , col = 'yellow')
+legend("bottomright",c('Ukraine','Belarus'),fill=c("blue","yellow"))
+```
+
+```{r}
+years2 = seq(1991, 2018)
+Ukraine_GDP = as.numeric(data.GDP1[data.GDP1$Country == "Ukraine", years[2:length(years)]])
+Belarus_GDP = as.numeric(data.GDP1[data.GDP1$Country == "Belarus", years[2:length(years)]])
+Ukraine_pop = as.numeric(data.population1[data.population1$Country == "Ukraine", years[2:length(years)]])
+Belarus_pop = as.numeric(data.population1[data.population1$Country == "Belarus", years[2:length(years)]])
+```
+
+
+Plotting GDP:
+```{r}
+plot(years2, Ukraine_GDP, type = 'l' , col = 'blue', ylab = "GDP")
+lines(years2, Belarus_GDP, type = 'l' , col = 'yellow')
+legend("bottomright",c('Ukraine','Belarus'),fill=c("blue","yellow"))
+```
+
+Plotting population:
+```{r}
+Belarus_pop
+print("YES")
+Ukraine_pop
+plot(years2, Ukraine_pop, type = 'l' , col = 'blue', ylab = "Population of Ukraine")
+plot(years2, Belarus_pop, type = 'l' , col = 'yellow', ylab = "Population of Belarus")
+# legend("bottomright",c('Ukraine','Belarus'),fill=c("blue","yellow"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
