@@ -1,0 +1,73 @@
+﻿"COU","Country","VAR","Variable","CO2","Country of origin","YEA","Year","Value","Flag Codes","Flags"
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2000","2000",267965,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2001","2001",272296,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2002","2002",275167,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2003","2003",277885,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2004","2004",279722,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2005","2005",281309,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2006","2006",284427,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2007","2007",288182,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2008","2008",292129,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2009","2009",297835,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2010","2010",305093,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2011","2011",312695,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2012","2012",318887,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2013","2013",326945,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2014","2014",334277,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2015","2015",339728,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2016","2016",346390,,
+"DEU","Germany","TNBD","Total number of doctors","TOT","Total","2017","2017",352869,,
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2000","2000",9971,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2001","2001",10806,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2002","2002",11848,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2003","2003",12804,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2004","2004",13430,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2005","2005",13746,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2006","2006",14703,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2007","2007",15456,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2008","2008",16741,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2009","2009",18339,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2010","2010",20029,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2011","2011",22829,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2012","2012",26034,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2013","2013",28901,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2014","2014",31857,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2015","2015",34850,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2016","2016",38247,"D","Difference in methodology"
+"DEU","Germany","FTDS","Foreign-trained doctors - Stock","TOT","Total","2017","2017",41934,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2000","2000",3.721,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2001","2001",3.968,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2002","2002",4.306,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2003","2003",4.608,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2004","2004",4.801,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2005","2005",4.886,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2006","2006",5.169,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2007","2007",5.363,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2008","2008",5.731,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2009","2009",6.157,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2010","2010",6.565,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2011","2011",7.301,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2012","2012",8.164,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2013","2013",8.84,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2014","2014",9.53,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2015","2015",10.258,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2016","2016",11.04,"D","Difference in methodology"
+"DEU","Germany","SFTD","% of foreign-trained doctors","TOT","Total","2017","2017",11.88,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2000","2000",226,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2001","2001",223,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2002","2002",259,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2003","2003",371,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2004","2004",796,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2005","2005",580,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2006","2006",607,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2007","2007",883,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2008","2008",934,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2009","2009",1071,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2010","2010",1426,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2011","2011",1900,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2012","2012",2225,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2013","2013",1964,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2014","2014",1730,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2015","2015",1530,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2016","2016",1430,"D","Difference in methodology"
+"DEU","Germany","IFTD","Foreign-trained doctors - Annual inflow","TOT","Total","2017","2017",1287,"D","Difference in methodology"

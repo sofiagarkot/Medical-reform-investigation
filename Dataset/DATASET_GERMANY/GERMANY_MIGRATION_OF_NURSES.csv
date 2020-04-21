@@ -1,0 +1,31 @@
+﻿"COU","Country","VAR","Variable","CO2","Country of origin","YEA","Year","Value","Flag Codes","Flags"
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2012","2012",814000,,
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2013","2013",844000,,
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2014","2014",861000,,
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2015","2015",870000,,
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2016","2016",888000,,
+"DEU","Germany","TNBN","Total number of nurses","TOT","Total","2017","2017",908000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2012","2012",763000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2013","2013",789000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2014","2014",802000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2015","2015",807000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2016","2016",826000,,
+"DEU","Germany","DTRN","Domestically-trained nurses","TOT","Total","2017","2017",837000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2012","2012",50000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2013","2013",54000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2014","2014",60000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2015","2015",63000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2016","2016",62000,,
+"DEU","Germany","FTNS","Foreign-trained nurses - Stock","TOT","Total","2017","2017",71000,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2012","2012",6.2,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2013","2013",6.43,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2014","2014",6.92,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2015","2015",7.26,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2016","2016",7.01,,
+"DEU","Germany","SFTN","% of foreign-trained nurses","TOT","Total","2017","2017",7.85,,
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2012","2012",663,"D","Difference in methodology"
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2013","2013",1875,"D","Difference in methodology"
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2014","2014",2631,"D","Difference in methodology"
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2015","2015",3342,"D","Difference in methodology"
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2016","2016",3699,"D","Difference in methodology"
+"DEU","Germany","IFTN","Foreign-trained nurses - Annual inflow","TOT","Total","2017","2017",4698,"D","Difference in methodology"
