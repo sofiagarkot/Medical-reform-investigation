@@ -1,0 +1,107 @@
+---
+title: "Modelling of macroeconomic factors that influence mortality rates"
+output: html_notebook
+---
+
+```{r}
+library(readxl)
+total.morality <- read_excel("Total deaths(All causes).xlsx")
+ischemic.mortality <- read_excel("NO_DEATHS_ISCHAEMIC_HEART_DISEASES.xlsx")
+diabetis.mortality <- read_excel("NO_DEATHS_DIABETIS.xlsx")
+nervous.system.mortality <- read_excel("NO_DEATHS_NERVOUS_SYSTEM.xlsx")
+years = seq(1995, 2016)
+# READING FACTORS
+gross.national.income = read.csv('GROSS_NATIONAL_INCOME.csv')
+# health.spending = read.csv('HEALTH_SPENDING.csv')
+air.emissions = read.csv('AIR_EMISSIONS.csv')
+daily.smokers = read.csv('DAILY_SMOKERS.csv')
+alcohol.consuption = read.csv('ALCOHOL_CONSUMPTION.csv')
+national.income = read.csv('NATIONAL_INCOME.csv')
+# no.consultations = read.csv('NO_CONSULTATIONS_PER_YEAR_WITH_A_DOCTOR.csv')
+pharma.expenditures = read.csv('PHARMACOLOGICAL_EXPENDITURES.csv')
+poverty.rate = read.csv('POVERTY_RATE.csv')
+social.spending = read.csv("SOCIAL_SPENDING.csv")
+tax.on.property = read.csv('TAX_ON_PROPERTY.csv')
+unemployment.rate = read.csv('UNEMPLOYMENT_RATE.csv')
+```
+### 1. Chech Republic
+
+```{r}
+czech.mortality = total.morality[2,seq(2,length(total.morality))]
+czech.mortality = rev(czech.mortality)
+plot(years, czech.mortality, type = 'l', col = 'blue')
+```
+
+```{r}
+czech.national.income = gross.national.income[which(gross.national.income$LOCATION == 'CZE'), c(7)]
+czech.national.income = czech.national.income[1:length(years)]
+czech.mortality = unlist(czech.mortality)
+```
+
+
+### 2. Germany
+```{r}
+german.mortality = total.morality[5,seq(2,length(total.morality))]
+german.mortality = rev(german.mortality)
+plot(years, german.mortality, type = 'l', col = 'blue', ylab = "N.o. deaths totally")
+```
+Mortality by disease:
+```{r}
+german.ischemic.mortality  = ischemic.mortality[5, seq(2,length(total.morality))]
+german.ischemic.mortality = rev(german.ischemic.mortality)
+german.diabetis.mortality = diabetis.mortality[5, seq(2,length(total.morality))]
+german.diabetis.mortality = rev(german.diabetis.mortality)
+german.nervous.system.mortality = nervous.system.mortality[5, seq(2, length(total.morality))]
+nervous.system.mortality = rev(nervous.system.mortality)
+plot(years, german.ischemic.mortality, type = 'l', col = 'darkred')
+plot(years, german.diabetis.mortality, type = 'l', col = 'purple',ylab = "N.o. deaths",ylim = c(14000, 30000))
+lines(years, german.nervous.system.mortality, type = 'l', col = 'yellow')
+legend('bottomleft', c("From diabetis", "Due to nervous system diseases"), fill = c('purple', 'yellow'))
+```
+MODELLING 
+```{r}
+german.gross.national.income = gross.national.income[which(gross.national.income$LOCATION == 'DEU'), c(7)]
+# german.health.spending = health.spending[which(health.spending$LOCATION == 'DEU'), c(7)]
+german.air.emissions = air.emissions[which(air.emissions$LOCATION == 'DEU'), c(7)]
+german.daily.smokers = daily.smokers[which(daily.smokers$LOCATION == 'DEU'), c(7)]
+german.alcohol.consuption = alcohol.consuption[which(alcohol.consuption$LOCATION == 'DEU'), c(7)]
+german.national.income = national.income[which(national.income$LOCATION == 'DEU'), 7]
+# german.no.consultations = no.consultations[which(no.consultations$LOCATION == 'DEU'), c(7)]
+german.pharma.expenditures = pharma.expenditures[which(pharma.expenditures$LOCATION == 'DEU'), c(7)]
+german.poverty.rate = poverty.rate[which(poverty.rate$LOCATION == 'DEU'), c(7)]
+german.social.spending = social.spending[which(social.spending$LOCATION == 'DEU'), c(7)]
+german.tax.on.property = tax.on.property[which(tax.on.property$LOCATION == 'DEU'), c(7)]
+german.unemployment.rate = unemployment.rate[which(unemployment.rate$LOCATION == 'DEU'), c(7)]
+# Cropping in order to perform modelling and cleaning from na's
+
+german.mortality = na.omit(unlist(german.mortality))
+
+german.gross.national.income = german.gross.national.income[1:length(german.mortality)]
+# german.health.spending = german.health.spending[1:length(german.mortality)]
+german.air.emissions = german.air.emissions[1:length(german.mortality)]
+german.daily.smokers = german.daily.smokers[1:length(german.mortality)]
+german.alcohol.consuption = german.alcohol.consuption[1:length(german.mortality)]
+# german.air.emissions = german.air.emissions[1:length(german.mortality)]
+german.national.income = german.national.income[1:length(german.mortality)]
+# german.no.consultations = german.no.consultations[1:length(german.mortality)]
+german.pharma.expenditures = german.pharma.expenditures[1:length(german.mortality)]
+german.poverty.rate = german.poverty.rate[1:length(german.mortality)]
+german.social.spending = german.social.spending[1:length(german.mortality)]
+german.tax.on.property = german.tax.on.property[1:length(german.mortality)]
+german.unemployment.rate = german.unemployment.rate[1:length(german.mortality)]
+
+```
+german.tax.on.property + german.unemployment.rate + german.gross.national.income + german.poverty.rate + german.daily.smokers  + german.alcohol.consuption +
+german.pharma.expenditures + german.national.income + german.social.spending, data = data.germany
+```{r}
+l = lm(german.mortality~german.social.spending)
+summary(l)
+german.daily.smokers
+data.germany = data.frame(german.air.emissions,german.daily.smokers,german.alcohol.consuption,german.pharma.expenditures,german.national.income, german.social.spending)
+german.national.income= na.omit(unlist(german.national.income))
+german.mortality.model = lm(german.mortality ~ german.air.emissions + german.daily.smokers +german.alcohol.consuption+german.pharma.expenditures+german.national.income+unlist(german.gross.national.income))
+summary(german.mortality.model)
+```
+
+
+
