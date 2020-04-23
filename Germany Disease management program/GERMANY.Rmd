@@ -1,0 +1,152 @@
+---
+title: "Investigation on whether the Disease Management Programmes (Germany, 2002) towards the reduction of sick on diabetis, brust cancer and ішемічна хвороба серця, астма, хронічна обструктивна хвороба легень shave influence on the population health state of Germany "
+output: html_notebook
+---
+
+```{r}
+library(readxl)
+germany.gdp <- read.csv("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/GDP_GERMANY.csv")
+total.morality <- read_excel("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/Total deaths(All causes).xlsx")
+ischemic.mortality <- read_excel("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/NO_DEATHS_ISCHAEMIC_HEART_DISEASES.xlsx")
+diabetis.mortality <- read_excel("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/NO_DEATHS_DIABETIS.xlsx")
+nervous.system.mortality <- read_excel("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/NO_DEATHS_NERVOUS_SYSTEM.xlsx")
+# READING FACTORS
+gross.national.income = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/GROSS_NATIONAL_INCOME.csv')
+air.emissions = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/AIR_EMISSIONS.csv')
+daily.smokers = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/DAILY_SMOKERS.csv')
+alcohol.consuption = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/ALCOHOL_CONSUMPTION.csv')
+no.consultations = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/consult.csv')
+pharma.expenditures = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/PHARMACOLOGICAL_EXPENDITURES.csv')
+poverty.rate = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/POVERTY_RATE.csv')
+social.spending = read.csv("~/Desktop/Medical reform/MACROECONOMIC_FACTORS/SOCIAL_SPENDING.csv")
+tax.on.property = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/TAX_ON_PROPERTY.csv')
+unemployment.rate = read.csv('~/Desktop/Medical reform/MACROECONOMIC_FACTORS/UNEMPLOYMENT_RATE.csv')
+```
+### In 2002 Germany introduced the ' Disease Management Programm ' which effectivness we would like to evaluate
+In order to do so we will firstly load the data about the mortality rate for Germany : how did it perform since 1995
+```{r}
+years = seq(1995, 2016)
+german.mortality = total.morality[5,seq(2,length(total.morality))]
+german.mortality = rev(german.mortality)
+plot(years, german.mortality, type = 'l', col = 'blue', ylab = "N.o. deaths totally")
+```
+Checking whether mortality has trend 
+```{r}
+trend.mortality = lm(unlist(german.mortality)~years)
+summary(trend.mortality)
+```
+There is no strong evidence that the mortality has some trend.
+After that loading the history of mortality by disease:
+(introducing the mortality on other diseases as well in order to evaluate the effectiveness of reform)
+```{r}
+german.ischemic.mortality  = ischemic.mortality[5, seq(2,length(total.morality))]
+german.ischemic.mortality = rev(german.ischemic.mortality)
+german.diabetis.mortality = diabetis.mortality[5, seq(2,length(total.morality))]
+german.diabetis.mortality = rev(german.diabetis.mortality)
+german.nervous.system.mortality = nervous.system.mortality[5, seq(2, length(total.morality))]
+nervous.system.mortality = rev(nervous.system.mortality)
+plot(years, german.ischemic.mortality, type = 'l', col = 'darkred')
+plot(years, german.diabetis.mortality, type = 'l', col = 'purple',ylab = "N.o. deaths",ylim = c(14000, 30000))
+lines(years, german.nervous.system.mortality, type = 'l', col = 'yellow')
+legend('bottomleft', c("From diabetis", "Due to nervous system diseases"), fill = c('purple', 'yellow'))
+```
+Loading needed data: 
+```{r}
+german.gross.national.income = gross.national.income[which(gross.national.income$LOCATION == 'DEU'), c(7)]
+german.air.emissions = air.emissions[which(air.emissions$LOCATION == 'DEU'), c(7)] # 2000 + 
+german.daily.smokers = daily.smokers[which(daily.smokers$LOCATION == 'DEU'), c(7)]
+german.alcohol.consuption = alcohol.consuption[which(alcohol.consuption$LOCATION == 'DEU'), c(7)]
+german.no.consultations = no.consultations[which(no.consultations$LOCATION == 'DEU'), c(7)]
+german.pharma.expenditures = pharma.expenditures[which(pharma.expenditures$LOCATION == 'DEU'), c(7)]
+german.poverty.rate = poverty.rate[which(poverty.rate$LOCATION == 'DEU'), c(7)]
+german.social.spending = social.spending[which(social.spending$LOCATION == 'DEU'), c(7)]
+german.tax.on.property = tax.on.property[which(tax.on.property$LOCATION == 'DEU'), c(7)]
+german.unemployment.rate = unemployment.rate[which(unemployment.rate$LOCATION == 'DEU'), c(7)]
+germany.gdp = germany.gdp[which(germany.gdp$LOCATION == 'DEU'), c(7)]
+# Cropping in order to perform modelling and cleaning from na's
+
+german.mortality = na.omit(unlist(german.mortality))   # dependent variable
+
+german.gross.national.income = na.omit(german.gross.national.income[1:length(german.mortality)])
+german.air.emissions = na.omit(german.air.emissions[1:length(german.mortality)])
+german.daily.smokers = na.omit(german.daily.smokers[1:length(german.mortality)])
+german.alcohol.consuption = na.omit(german.alcohol.consuption[1:length(german.mortality)])
+german.no.consultations = na.omit(german.no.consultations[1:length(german.mortality)])
+german.pharma.expenditures = na.omit(german.pharma.expenditures[1:length(german.mortality)])
+german.poverty.rate = na.omit(german.poverty.rate[2:length(german.poverty.rate)])
+german.social.spending = na.omit(german.social.spending[1:length(german.mortality)])
+german.tax.on.property = na.omit(german.tax.on.property[1:length(german.mortality)])
+german.unemployment.rate = na.omit(german.unemployment.rate[1:length(german.mortality)])
+
+```
+Firstly, let's see a dynamic in which those factors developed:
+```{r}
+years = seq(1995, 2015)
+years.air = seq(2000, 2018)
+years.poverty = seq(2011, 2017)
+years.tax = seq(2000, 2018)
+years.gdp = seq(2000, 2015)
+
+plot(years,german.gross.national.income, type = 'l', col = 'red')
+plot(years.air, german.air.emissions, type = 'l', col = 'blue')
+plot(years,german.no.consultations, type = 'l', col = 'red')
+plot(years,german.pharma.expenditures, type = 'l', col = 'red', ylim = c(13, 27))
+lines(years,german.social.spending, type = 'l', col = 'yellow')
+legend('left', c("Pharma ", "Social"), fill = c('red', 'yellow'))
+
+plot(years.poverty,german.poverty.rate, type = 'l', col = 'red')
+plot(years.tax,german.tax.on.property, type = 'l', col = 'red')
+plot(years,german.unemployment.rate, type = 'l', col = 'red')
+plot(years.gdp, germany.gdp, type = 'l', col = 'darkblue')
+
+```
+```{r}
+# cropping all data from 2000 to 2015 -- the period when every metric is availible in order to build a model 
+german.gross.national.income = german.gross.national.income[6:length(german.gross.national.income)]
+german.air.emissions = german.air.emissions[1:16]
+german.no.consultations = german.no.consultations[6:length(german.no.consultations)]
+german.pharma.expenditures = german.pharma.expenditures[6:length(german.pharma.expenditures)]
+german.social.spending = german.social.spending[6:length(german.social.spending)]
+german.tax.on.property = german.tax.on.property[1:16]
+german.unemployment.rate= german.unemployment.rate[6:length(german.unemployment.rate)]
+german.mortality = german.mortality[6:length(german.mortality)]
+```
+Firstly, modelling independently 
+```{r}
+mortality.consultations = lm(german.mortality~germany.gdp)
+summary(mortality.consultations)
+```
+Adding german.pharma.expenditures and german.social.spending in order to find out how financing of those sectors effects mortality.
+```{r}
+mortality_model = lm(german.mortality~german.no.consultations + germany.gdp)
+summary(mortality_model)
+```
+Here we see a strange fact : the level of significance increases as we add more factors. That is due to the violation of the OLS assumptions : no perfect multicollinearity --> it is explained by correlation between the regressands. 
+We will try to find the least correlated regressands.
+Before further modelling for all regressors I will check whether the assumptions of CLV are met : No Perfect Multicollinearity 
+```{r}
+# install.packages("ggpubr")
+# library("ggpubr")
+german.data = data.frame(german.mortality, german.gross.national.income, german.air.emissions, german.no.consultations, german.pharma.expenditures, german.social.spending, german.tax.on.property, german.unemployment.rate, germany.gdp)
+german.data.matrix  = as.matrix(german.data)
+cor(german.data.matrix)
+
+```
+Here we see that every regressor in somehow correlated with the other, that is why in order to choose the ones that expain the regressand in the best way we will choose the ones that have the most correlation with regressand and the least correlation between each other. 
+That are :
+- german.unemployment.rate
+- german.tax.on.property
+- german.gross.national.income
+- german.air.emissions
+- german.pharma.expenditures
+While modelling and finding which predictors have the most influence on the death rate 
+```{r}
+german.model = lm(german.mortality ~ german.air.emissions + german.gross.national.income  + german.pharma.expenditures + german.social.spending + german.unemployment.rate)
+summary(german.model)
+```
+So we can conclude, that each additional mln $ towards social spending from government is correlated with 1 more % of mortality. 
+1% increase in unemployment rate is assosiated with -9233.851 deaths.
+1 mln $ increase in gross national income is assosiated with 3.307 more deaths per year.
+
+
+
