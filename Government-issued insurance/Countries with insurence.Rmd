@@ -1,0 +1,371 @@
+---
+title: "Investigation on which factors influence whether a country has a social government-covered medical insurance "
+output: html_notebook
+---
+Ukrainian healthcare system is tax-based, which means that we pay for medical help as well as for police for example.
+
+In this chapter we want to investigate whether the introduction of insurance-based healthcare system in Ukraine will be successful, and which % of population will be covered after introduction. 
+
+The difference in the systems of tax-based and insurance-based systems is explained in the pdf-file named "Social insurancing vs. tax-based health systems.pdf".
+
+Based on experience of other countries we will perform a binary model that indicates introduction of insurance-based medical system. Our previous assumption is that it will depend on variety of macroeconomic factors as well as health state in the country. 
+
+We are considering 6-years data about performance of the following macroeconomic factors in 6 countries that introduced mandatory insurance system and it was successful as well as the latest availible data about 6 countries where this system does not perform successfully. Looking on the performance of those factors we will see which of the tends to be high/low for a successful reform. After that we will have a look on Ukrainian past 6 years data about those factors and conclude whether it is ready for the introduction of the SHI.
+
+6 countries with a successful SHI-reform:
+(the reform is considered successful if at least 99% of population has is covered at 2010 or after at least 10 years after introduction of the reform if it was introduced after 2000's)
+
+1) Australia (1999, https://en.wikipedia.org/wiki/Health_care_in_Australia)
+2) Israel (1995, https://international.commonwealthfund.org/countries/israel/)
+3) Sweden (1980, Consumer insurance law)
+4) Finland (1966, http://www.euro.who.int/__data/assets/pdf_file/0008/80693/E74071.pdf)
+5) Norway (1967, http://www.euro.who.int/__data/assets/pdf_file/0010/95149/E68950.pdf )
+6) Swizerland (1996, Federal Health Insurance Law )
+ 
+6 countries with not successful mandatory health insurance reform:
+(the reform is considered successful if 100% of population has is insured and has access to medical help )
+
+1) Poland (1997, http://www.euro.who.int/__data/assets/pdf_file/0003/95160/E67136.pdf)
+2) Slovakia (2002 - 2004, http://www.euro.who.int/__data/assets/pdf_file/0009/355995/Health-Profile-Slovak-Rep-Eng.pdf?ua=1)
+3) United States (2010, https://www.healthsherpa.com/blog/health-insurance-mandatory-united-states/ )
+4) Turkey (2012, https://www.angloinfo.com/how-to/turkey/healthcare/health-system/health-insurance )
+5) Chile (1990, https://www.who.int/ageing/projects/intra/phase_one/alc_intra1_cp_chile.pdf)
+6) Estonia (2000, EHIF)
+More at : https://en.wikipedia.org/wiki/List_of_countries_by_health_insurance_coverage , https://www.oecd-ilibrary.org/docserver/health_glance-2017-24-en.pdf?expires=1587762532&id=id&accname=guest&checksum=611C6F6CDA6B4C477D84F10FB62990D8 
+Percentage of population covered : https://stats.oecd.org/Index.aspx?DataSetCode=HEALTH_PROT 
+
+
+Our assumption is that the following macroeconomic factors correlate with the introduction of SHI.
+Data description of macroeconomic factors:
+
+- Gross domestic product (GDP) is the standard measure of the value added created through the production of goods and services in a country during a certain period, measured in Million US dollars. In order to standardise this measure we will use GDP per capita data.
+
+- General government deficit is measured as % of GDP : "Net lending" means that government has a surplus, and is providing financial resources to other sectors, while "net borrowing" means that government has a deficit, and requires financial resources from other sectors.
+
+- Household spending is the amount of final consumption expenditure made by resident households to meet their everyday needs, such as food, clothing, housing (rent), energy, etc. It is measured as  % of GDP.
+
+- Inflation measured by consumer price index (CPI) is defined as the change in the prices of a basket of goods and services that are typically purchased by specific groups of households. Inflation is measured in terms of the annual growth rate (percentage).
+
+- Unemployment rate is the number of unemployed people as a percentage of the labour force.
+
+Loading the data.
+```{r}
+gdp <- read.csv("GDP.csv")
+inflation = read.csv("INFLATION.csv")
+unemloyment = read.csv("UNEMPLOYMENT.csv")
+spending = read.csv("HOUSEHOLD SPENDING.csv")
+deficit = read.csv("DEFICIT.csv")
+```
+
+Forming a dataset:
+```{r}
+successful = c("AUS", "ISR","SWE","CHE", "FIN", "NOR")
+introduced.years = c(1999, 1995, 1980, 1996, 1966, 1967)
+
+unsuccessful = c("POL","SVK",  "TUR", "USA", "CHL", "EST")
+unsuccessflul.years = c(1997, 2002, 2010, 2012, 1990, 2000)
+
+data <- data.frame(country = character(), year = numeric(), indicator = numeric(), gdp.per.capita = numeric(),  inflation = numeric(), spending = numeric(),  deficit = numeric(), unemloyment = numeric(), stringsAsFactors=F) 
+
+gdp$Value <- as.numeric(as.character(gdp$Value))
+# Collecting data
+c = 1
+for(i in seq(1, length(successful))) {
+  country = successful[i]
+  year = introduced.years[i]
+  for (j in seq(0, -6,-1)){
+    data[c,1] = country
+    data[c, 2] = year+j
+    data[c, 3] = 1
+    data[c, 4] =  gdp[which(gdp$LOCATION==country & gdp$TIME == year+j & gdp$SUBJECT == "TOT" & gdp$MEASURE == "USD_CAP"),7]
+    data[c, 5] = inflation[which(inflation$LOCATION==country & inflation$TIME == year+j & inflation$SUBJECT == "TOT" & inflation$MEASURE == "AGRWTH"),7]
+    data[c, 6] = ifelse(length(which(spending$LOCATION == country & spending$TIME == year+j & spending$MEASURE == "PC_GDP"  & spending$SUBJECT =="TOT")) == 0, NA, spending[which(spending$LOCATION == country & spending$TIME == year+j & spending$MEASURE == "PC_GDP" & spending$SUBJECT =="TOT"), 7])
+    data[c,7] = ifelse(length(deficit$LOCATION == country & deficit$TIME == year+j) == 0, NA, deficit[which(deficit$LOCATION == country & deficit$TIME == year+j), 7])
+    data[c, 8] = ifelse(length(which(unemloyment$LOCATION == country & unemloyment$TIME == year+j & unemloyment$SUBJECT == "TOT")) == 0, NA, unemloyment[which(unemloyment$LOCATION == country & unemloyment$TIME == year+j & unemloyment$SUBJECT == "TOT"), 7])
+    
+    c = c + 1
+  }
+}
+
+unsuccessful = c("POL","SVK",  "TUR", "USA", "CHL")
+unsuccessflul.years = c(1997, 2002, 2010, 2012, 1990)
+gdp$Value <- as.numeric(as.character(gdp$Value))
+for(i in seq(1, length(unsuccessful))) {
+  country = unsuccessful[i]
+  year = unsuccessflul.years[i]
+  for (j in seq(0, -6,-1)){
+    data[c,1] = country
+    data[c, 2] = year+j
+    data[c, 3] = 0
+    data[c, 4] =  as.numeric(as.character(gdp[which(gdp$LOCATION==country & gdp$TIME == year+j & gdp$MEASURE == "USD_CAP"), 7]))
+    data[c, 5] = inflation[which(inflation$LOCATION==country & inflation$TIME == year+j & inflation$SUBJECT == "TOT" & inflation$MEASURE == "AGRWTH"), 7]
+    data[c, 6] = ifelse(length(which(spending$LOCATION == country & spending$TIME == year+j & spending$MEASURE == "PC_GDP"  & spending$SUBJECT =="TOT")) == 0, NA, spending[which(spending$LOCATION == country & spending$TIME == year+j & spending$MEASURE == "PC_GDP" & spending$SUBJECT =="TOT"), 7])
+    data[c,7] = ifelse(length(deficit$LOCATION == country & deficit$TIME == year+j) == 0, NA, deficit[which(deficit$LOCATION == country & deficit$TIME == year+j), 7])
+    data[c, 8] = ifelse(length(which(unemloyment$LOCATION == country & unemloyment$TIME == year+j & unemloyment$SUBJECT == "TOT")) == 0, NA, unemloyment[which(unemloyment$LOCATION == country & unemloyment$TIME == year+j & unemloyment$SUBJECT == "TOT"), 7])
+    c = c + 1
+  }
+}
+```
+Plotting the trend in GDP for successful and unsuccessfiul countries:
+```{r}
+plot(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "AUS")]), type = 'l', col = 'blue', ylab="GDP per capita: successful", xlab='Years before reform',ylim=c(100,40000))
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "ISR")]), type = 'l', col = 'purple')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "SWE")]), type = 'l', col = 'pink')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "CHE")]), type = 'l', col = 'green')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "NOR")]), type = 'l', col = 'orange')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "FIN")]), type = 'l', col = 'darkred')
+legend('topleft', c("Australia", "Sweden", "Israel", "Swizerland","Norway", "Finland"), fill = c('blue', 'pink', 'purple', "green", "orange","darkred"),cex = 0.65)
+
+plot(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue', ylab="GDP per capita: unsuccessful", xlab='Years before reform',ylim=c(100,50000))
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(seq(-6,0,1),rev(data[["gdp.per.capita"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+legend('left', c("Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.85)
+```
+Let's have a look on overall years trend:
+```{r}
+plot(data[["year"]][which(data$country == "AUS")], data[["gdp.per.capita"]][which(data$country == "AUS")], type = 'l', col = 'blue', xlim = c(1960, 2012),ylim =c(0,52000), xlab="Years", ylab = "GDP per capita")
+lines(data[["year"]][which(data$country == "ISR")],data[["gdp.per.capita"]][which(data$country == "ISR")], type = 'l', col = 'purple')
+lines(data[["year"]][which(data$country == "CHE")],data[["gdp.per.capita"]][which(data$country == "CHE")], type = 'l', col = 'green')
+lines(data[["year"]][which(data$country == "NOR")],data[["gdp.per.capita"]][which(data$country == "NOR")], type = 'l', col = 'orange')
+lines(data[["year"]][which(data$country == "FIN")],data[["gdp.per.capita"]][which(data$country == "FIN")], type = 'l', col = 'darkred')
+lines(data[["year"]][which(data$country == "CHL")],rev(data[["gdp.per.capita"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue')
+lines(data[["year"]][which(data$country == "POL")],rev(data[["gdp.per.capita"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(data[["year"]][which(data$country == "SVK")],rev(data[["gdp.per.capita"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(data[["year"]][which(data$country == "TUR")],rev(data[["gdp.per.capita"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+
+lines(seq(1970, 2012), gdp[which(gdp$LOCATION=="OECD" & gdp$MEASURE == "USD_CAP"), 7][1:43], type = "l", col = "red")
+legend('topleft', c("Overall","Australia", "Israel", "Swizerland","Norway", "Finland", "Chile", "Poland", "Slovakia","Turkey"), fill = c('red','blue', 'pink', "green", "orange","darkred",'deepskyblue', 'yellow', 'darkolivegreen',  "darkorchid2"),cex = 0.85)
+```
+We see that there is a big trend of GDP to grow exponentially with time, that is why we will detrend the data to put later in the logistic regression.
+```{r}
+all.countries = c(successful, unsuccessful)
+for (c in all.countries){
+  print("For country: ")
+  print(c)
+  trend.lm = lm(log(data[["gdp.per.capita"]][which(data$country == c)])~data[["year"]][which(data$country == c)])
+  print(summary(trend.lm))
+  
+}
+```
+We see the strong evidence that there is exponential trending in this time series data. that is why we will detrend it.
+```{r}
+data$detrended.gdp = NA
+detrended.row.index = 1
+for (c in all.countries){
+  trend.country = lm(log(data[["gdp.per.capita"]][which(data$country == c)])~data[["year"]][which(data$country == c)])
+  #print(c)
+  #print(log(data[["gdp.per.capita"]][which(data$country == c)]) )
+  #print(predict(trend.country))
+  detrended.country = log(data[["gdp.per.capita"]][which(data$country == c)]) - predict(trend.country)
+  # print(detrended.country)
+  for (i in seq(1,7,1)){
+    data[detrended.row.index, 9] = detrended.country[i]
+    detrended.row.index = detrended.row.index + 1
+}
+}
+```
+An then plotting detrended data:
+```{r}
+plot(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "AUS")]), type = 'l', col = 'blue', ylab="GDP per capita: successful", xlab='Years before reform',ylim=c(-0.2,0.2))
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "ISR")]), type = 'l', col = 'purple')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "SWE")]), type = 'l', col = 'pink')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "CHE")]), type = 'l', col = 'green')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "NOR")]), type = 'l', col = 'orange')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "FIN")]), type = 'l', col = 'darkred')
+legend('topleft', c("Australia", "Sweden", "Israel", "Swizerland","Norway", "Finland"), fill = c('blue', 'pink', 'purple', "green", "orange","darkred"),cex = 0.65)
+
+plot(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue', ylab="GDP per capita: unsuccessful", xlab='Years before reform',ylim=c(-0.2,0.2))
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(seq(-6,0,1),rev(data[["detrended.gdp"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+legend('topleft', c("Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.85)
+```
+Here we do not observe some tendency for GDP to grow or fall before the introduction of the reform.
+### Another metrics
+Let's plot another metrics:
+```{r}
+plot(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "AUS")]), type = 'l', col = 'blue', ylab="Inflation", xlab='Years before reform',ylim =c(0, 70) )
+
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "ISR")]), type = 'l', col = 'purple')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "SWE")]), type = 'l', col = 'pink')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "CHE")]), type = 'l', col = 'green')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "NOR")]), type = 'l', col = 'orange')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "FIN")]), type = 'l', col = 'darkred')
+
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(seq(-6,0,1),rev(data[["inflation"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+
+legend('topright', c("Australia", "Sweden", "Israel", "Swizerland","Norway", "Finland","Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('blue', 'pink', 'purple', "green", "orange","darkred",'deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.75)
+```
+```{r}
+plot(data[["year"]][which(data$country == "AUS")], data[["inflation"]][which(data$country == "AUS")], type = 'l', col = 'blue', xlim = c(1960, 2012),ylim =c(-1,100), xlab="Years", ylab = "inflation")
+lines(data[["year"]][which(data$country == "ISR")],data[["inflation"]][which(data$country == "ISR")], type = 'l', col = 'purple')
+lines(data[["year"]][which(data$country == "SWE")],data[["inflation"]][which(data$country == "SWE")], type = 'l', col = 'pink')
+lines(data[["year"]][which(data$country == "CHE")],data[["inflation"]][which(data$country == "CHE")], type = 'l', col = 'green')
+
+lines(data[["year"]][which(data$country == "NOR")],data[["inflation"]][which(data$country == "NOR")], type = 'l', col = 'orange')
+lines(data[["year"]][which(data$country == "FIN")],data[["inflation"]][which(data$country == "FIN")], type = 'l', col = 'darkred')
+# !!!!
+lines(data[["year"]][which(data$country == "CHL")],rev(data[["inflation"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue')
+lines(data[["year"]][which(data$country == "POL")],rev(data[["inflation"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(data[["year"]][which(data$country == "SVK")],rev(data[["inflation"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(data[["year"]][which(data$country == "USA")],rev(data[["inflation"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(data[["year"]][which(data$country == "TUR")],rev(data[["inflation"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+lines(seq(1970, 2012), inflation[which(inflation$LOCATION=="OECD" & inflation$FREQUENCY =="A" & inflation$SUBJECT == "TOT" & inflation$MEASURE == "AGRWTH"), 7][1:43], type = "l", col = "red")
+legend('topleft', c("Overall","Australia", "Israel", "Sweden", "Swizerland","Norway", "Finland", "Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('red','blue', 'pink', 'purple', "green", "orange","darkred",'deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.85)
+```
+
+```{r}
+for (c in successful){
+  print("For country: ")
+  print(c)
+  trend.lm = lm(data[["inflation"]][which(data$country == c)]~data[["year"]][which(data$country == c)])
+  print(summary(trend.lm))
+}
+```
+So we see that there is no significant evidence towards the existence of a linear trend. 
+Looking at other metrics:
+```{r}
+plot(data[["year"]][which(data$country == "AUS")], data[["unemloyment"]][which(data$country == "AUS")], type = 'l', col = 'blue', xlim = c(1960, 2012),ylim =c(-1,20), xlab="Years", ylab = "Unemployment")
+lines(data[["year"]][which(data$country == "ISR")],data[["unemloyment"]][which(data$country == "ISR")], type = 'l', col = 'purple')
+lines(data[["year"]][which(data$country == "SWE")],data[["unemloyment"]][which(data$country == "SWE")], type = 'l', col = 'pink')
+lines(data[["year"]][which(data$country == "CHE")],data[["unemloyment"]][which(data$country == "CHE")], type = 'l', col = 'green')
+
+lines(data[["year"]][which(data$country == "NOR")],data[["unemloyment"]][which(data$country == "NOR")], type = 'l', col = 'orange')
+lines(data[["year"]][which(data$country == "FIN")],data[["unemloyment"]][which(data$country == "FIN")], type = 'l', col = 'darkred')
+lines(data[["year"]][which(data$country == "CHL")],rev(data[["unemloyment"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue')
+lines(data[["year"]][which(data$country == "POL")],rev(data[["unemloyment"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(data[["year"]][which(data$country == "SVK")],rev(data[["unemloyment"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(data[["year"]][which(data$country == "USA")],rev(data[["unemloyment"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(data[["year"]][which(data$country == "TUR")],rev(data[["unemloyment"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+lines(seq(1970, 2012), unemloyment[which(inflation$LOCATION=="OECD" & unemloyment$SUBJECT == "TOT"), 7][1:43], type = "l", col = "red")
+legend('topleft', c("Overall","Australia", "Israel", "Sweden", "Swizerland","Norway", "Finland", "Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('red','blue', 'pink', 'purple', "green", "orange","darkred",'deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.85)
+```
+```{r}
+all.countries <- all.countries[which(all.countries!="NOR" & all.countries!="POL")]
+for (c in all.countries){
+  print("For country: ")
+  print(c)
+  trend.lm = lm(data[["unemloyment"]][which(data$country == c)]~data[["year"]][which(data$country == c)])
+  print(summary(trend.lm))
+}
+```
+So we see that there is evidence twoards the existence of trend in 5 countries from from 9.
+```{r}
+plot(data[["year"]][which(data$country == "AUS")], data[["spending"]][which(data$country == "AUS")], type = 'l', col = 'blue', xlim = c(1960, 2012),ylim =c(40,70), xlab="Years", ylab = "Household spending")
+lines(data[["year"]][which(data$country == "ISR")],data[["spending"]][which(data$country == "ISR")], type = 'l', col = 'purple')
+lines(data[["year"]][which(data$country == "SWE")],data[["spending"]][which(data$country == "SWE")], type = 'l', col = 'pink')
+lines(data[["year"]][which(data$country == "CHE")],data[["spending"]][which(data$country == "CHE")], type = 'l', col = 'green')
+
+lines(data[["year"]][which(data$country == "NOR")],data[["spending"]][which(data$country == "NOR")], type = 'l', col = 'orange')
+lines(data[["year"]][which(data$country == "FIN")],data[["spending"]][which(data$country == "FIN")], type = 'l', col = 'darkred')
+# !!!!
+lines(data[["year"]][which(data$country == "CHL")],rev(data[["spending"]][which(data$country == "CHL")]), type = 'l', col = 'deepskyblue')
+lines(data[["year"]][which(data$country == "POL")],rev(data[["spending"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(data[["year"]][which(data$country == "SVK")],rev(data[["spending"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(data[["year"]][which(data$country == "USA")],rev(data[["spending"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(data[["year"]][which(data$country == "TUR")],rev(data[["spending"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+lines(seq(1970, 2012), spending[which(spending$LOCATION=="DEU" & spending$MEASURE == "PC_GDP" & spending$SUBJECT =="TOT"), 7][1:43], type = "l", col = "red")
+legend('bottomleft', c("Germany","Australia", "Israel", "Sweden", "Swizerland","Norway", "Finland", "Chile", "Poland", "Slovakia", "USA","Turkey"), fill = c('red','blue', 'pink', 'purple', "green", "orange","darkred",'deepskyblue', 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.85)
+```
+So we don't see trending in household spending.
+```{r}
+plot(data[["year"]][which(data$country == "AUS")], data[["deficit"]][which(data$country == "AUS")], type = 'l', col = 'blue', xlim = c(1990, 2012), ylim = c(-15, 5), xlab="Years", ylab = "Net income")
+lines(data[["year"]][which(data$country == "CHE")],data[["deficit"]][which(data$country == "CHE")], type = 'l', col = 'green')
+
+lines(data[["year"]][which(data$country == "POL")],rev(data[["deficit"]][which(data$country == "POL")]), type = 'l', col = 'yellow')
+lines(data[["year"]][which(data$country == "SVK")],rev(data[["deficit"]][which(data$country == "SVK")]), type = 'l', col = 'darkolivegreen')
+lines(data[["year"]][which(data$country == "USA")],rev(data[["deficit"]][which(data$country == "USA")]), type = 'l', col = 'coral')
+lines(data[["year"]][which(data$country == "TUR")],rev(data[["deficit"]][which(data$country == "TUR")]), type = 'l', col = 'darkorchid2')
+lines(seq(1990, 2012), deficit[which(deficit$LOCATION=="CAN" & deficit$MEASURE =="PC_GDP"), 7][21:43], type = "l", col = "red")
+legend('bottomleft', c("Canada","Australia", "Swizerland", "Poland", "Slovakia", "USA","Turkey"), fill = c('red','blue', "green", 'yellow', 'darkolivegreen', "coral", "darkorchid2"),cex = 0.55)
+```
+We also find no dependancy of net income on time.
+
+## Forming a set of regressors
+In order to include the influence of each year on the introduction of reform we will combine the data about 6 past values into one variable by setting specific weights onto each year and than summing the independent variable. Also the additional variable we will include for each country is the deviation of the statistic and add it to the set of regressors. 
+
+```{r}
+regressors = data.frame(indicator = numeric(), gdp = numeric(), deficit = numeric(), spending = numeric(), inflation = numeric(), unemployment = numeric(), country = character(), stringsAsFactors = F)
+data.pointer = 1
+weights = c(0.25, 0.15, 0.15, 0.15, 0.15, 0.1, 0.05)
+for(country in all.countries) {
+    regressors[data.pointer, 1] = data[which(data$country == country), 3][1]
+    regressors[data.pointer, 2] = weights %*% data[which(data$country == country), 9]
+    regressors[data.pointer, 3] = weights %*% data[which(data$country == country), 7]
+    regressors[data.pointer, 4] = weights %*% data[which(data$country == country), 6]
+    regressors[data.pointer, 5] = weights %*% data[which(data$country == country), 5]
+    regressors[data.pointer, 6] = weights %*% data[which(data$country == country), 8]
+    regressors[data.pointer, 7] = data[which(data$country == country), 1][1]
+    data.pointer =  data.pointer +1
+}
+logit2 <- glm(regressors$indicator~regressors$gdp+regressors$deficit + regressors$spending + regressors$inflation + regressors$unemployment, regressors , family = binomial('logit'))
+summary(logit2)
+```
+We see that the data for some countries are unavailible that is why our model will not work properly. 
+Let's try to model in such way that each year will influence the success of reform in eqall manner.
+
+Checking for multicolinearity in order to hold the assumptions of modeling.
+```{r}
+cor(as.matrix(na.omit(data[,c(5,6,7,9,10)])))
+```
+As we see detrended GDP is highly correlated with detrended unemployment. I will choose one of them based on the significance of the results % the influence they make on response variable.
+```{r}
+formula <- as.formula('indicator ~ detrended.gdp ')
+#Logit
+logit <- glm(formula, data , family = binomial('logit'))
+summary(logit)
+formula <- as.formula('indicator ~ detrended.unemployment ')
+#Logit
+logit <- glm(formula, data , family = binomial('logit'))
+summary(logit)
+```
+We see that none of them has at least some significant influence on the responce variable. That is why building a prediction model I will exclude both of them.
+
+Trying to build a prediction model
+```{r}
+formula1 <- as.formula('indicator ~ deficit ')
+#Logit
+logit1 <- glm(formula1, data , family = binomial('logit'))
+summary(logit1)
+# install.packages("stats")
+library("stats")
+AIC(logit1)
+```
+
+```{r}
+formula <- as.formula('indicator ~ deficit + spending + inflation')
+#Logit
+logit <- glm(formula, data , family = binomial('logit'))
+summary(logit)
+# install.packages("stats")
+library("stats")
+AIC(logit)
+```
+- General government deficit is a significant regressor against 10% two-sided alternative. Each additional% of deficit is correlated with the lowering probability of successful reform (by 0.525);
+- Household spending is a significant regressor against 10% two-sided alternative. A one-percent increase in household spending relative to GDP is associated with lower probability of successful reform (-0.2832) (at 78% level of significance). 
+- the 1-unit increase in inflation is associated with lowering the probability of success by 32.19% 
+
+We see that AIC has lowered as we increase number of regressors in our model that is why we will use the upper model for prediction whether Ukraine will have a successful introduction of the health insurance model bassed on past 6-years data. 
+
+```{r}
+years.to.predict = c(2013,2014,2015,2016,2017,2018,2019)
+data.Ukraine = data.frame(years = years.to.predict, deficit=NA, spending = NA, inflation = NA)
+data.Ukraine$inflation = inflation[which(inflation$LOCATION=="UKR" & inflation$SUBJECT== "TOT"),7]
+data.Ukraine$deficit = c(-32.775, -59.677, -67.098, -69.207, -61.454, -52.247, -44.316)
+data.Ukraine$spending = c(72.17, 71.44, 67.75, 66.6, 67.08, 69.07, 74.3 )
+pred <- predict(logit, newdata = data.Ukraine, type = "response")
+mean(round(pred, 2))
+```
+So we conclude that the introduction of the private insurancing in Ukraine will be unsuccessful (mostly due to big national debt).
+
+
+
+
+
