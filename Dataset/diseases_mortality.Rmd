@@ -1,0 +1,344 @@
+---
+title: "Diseases Mortality changes due to the effects of Medical Reforms"
+output: html_notebook
+---
+Downloading Libraries.
+```{r}
+library(ggplot2)
+library(pracma)
+library(pastecs)
+library(MASS)
+```
+
+Collecting data and forming dataframes.
+```{r}
+data.mortality_germany <- read.csv("DATASET_GERMANY/DeathRateGermany - Sheet1.csv")
+data.life_expectancy_germany <- read.csv("DATASET_GERMANY/LifeExpectancyGermany - Sheet1.csv")
+
+data.mortality_norway <- read.csv("DATASET_NORWAY/DeathRateNorway - Sheet1.csv")
+data.life_expectancy_norway <- read.csv("DATASET_NORWAY/LifeExpectancyNorway - Sheet1.csv")
+
+data.mortality_germany_r <- data.frame("Year" = rev(data.mortality_germany$Year), "Death.Rate" = rev(data.mortality_germany$Death.Rate), "Growth.Rate" = rev(data.mortality_germany$Growth.Rate))
+data.life_expectancy_germany_r <- data.frame("Year" = rev(data.life_expectancy_germany$Year), "Life.Expectancy" = rev(data.life_expectancy_germany$Life.Expectancy), "Growth.Rate" = rev(data.life_expectancy_germany$Growth.rate))
+
+data.mortality_norway_r <- data.frame("Year" = rev(data.mortality_norway$Year), "Death.Rate" = rev(data.mortality_norway$Death.Rate), "Growth.Rate" = rev(data.mortality_norway$Growth.Rate))
+data.life_expectancy_norway_r <- data.frame("Year" = rev(data.life_expectancy_norway$Year), "Life.Expectancy" = rev(data.life_expectancy_norway$Life.Expectancy), "Growth.Rate" = rev(data.life_expectancy_norway$Growth.Rate))
+
+data.mortality_norway_r
+data.life_expectancy_norway_r
+```
+
+Running linear regression to see if the data has a trend.
+```{r}
+year_m <- data.mortality_germany_r$Year
+death_rate_germany <- data.mortality_germany_r$Death.Rate
+death_rate_norway <- data.mortality_norway_r$Death.Rate
+summary(lm(death_rate_germany~year_m))
+summary(lm(death_rate_norway~year_m))
+```
+
+By the p-values for variable year_m, we observe, that the Germany's mortality rate has to be detrended. The plot below shows the results. 
+```{r}
+data.germany_mort_dentrended <- merge(data.mortality_germany_r[, c("Year", "Death.Rate")], data.mortality_germany_r[, c("Year", "Death.Rate")], by.x="Year", by.y="Year")
+
+ggplot(data.germany_mort_dentrended, aes(x=Year)) + geom_line(aes(y=Death.Rate.x, color="With Trend")) + geom_line(aes(y=detrend(Death.Rate.y), color="Detrended")) + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("", values=c("With Trend"="steelblue", "Detrended"="firebrick4")) + ggtitle("Germany Total Mortality Rate")
+```
+
+Forming diseases mortality dataframes.
+```{r}
+data.diseases_mortality_germany <- read.csv("DATASET_GERMANY/MortalityDiseasesGermany - Sheet1.csv")
+
+data.diseases_mortality_germany_r <- data.frame(
+  "Year" = rev(data.diseases_mortality_germany$Year), "Icheamic.Heart.Disease" = rev(data.diseases_mortality_germany$Icheamic.Heart.Disease), "Mental.and.behavioural.disorders" = rev(data.diseases_mortality_germany$Mental.and.behavioural.disorders), "Diseases.of.the.nervous.system" = rev(data.diseases_mortality_germany$Diseases.of.the.nervous.system), "Malignant.neoplasm.of.breast..female" = rev(data.diseases_mortality_germany$Malignant.neoplasm.of.breast..female), "Diabetes.mellitus" = rev(data.diseases_mortality_germany$Diabetes.mellitus), "Leukaemia" = rev(data.diseases_mortality_germany$Leukaemia), "Alzheimer" = rev(data.diseases_mortality_germany$Alzheimer), "Pneumonia" = rev(data.diseases_mortality_germany$Pneumonia), "TotalDeaths"=rev(data.diseases_mortality_germany$Total.Deaths))
+
+data.diseases_mortality_germany_r
+```
+
+```{r}
+data.diseases_mortality_norway <- read.csv("DATASET_NORWAY/MortalityDiseasesNorway - Sheet1.csv")[1:26,]
+
+data.diseases_mortality_norway_r <- data.frame(
+  "Year" = rev(data.diseases_mortality_norway$Year), "Icheamic.Heart.Disease" = rev(data.diseases_mortality_norway$Icheamic.Heart.Disease), "Mental.and.behavioural.disorders" = rev(data.diseases_mortality_norway$Mental.and.behavioural.disorders), "Diseases.of.the.nervous.system" = rev(data.diseases_mortality_norway$Diseases.of.the.nervous.system), "Malignant.neoplasm.of.breast..female" = rev(data.diseases_mortality_norway$Malignant.neoplasm.of.breast..female), "Diabetes.mellitus" = rev(data.diseases_mortality_norway$Diabetes.mellitus), "Leukaemia" = rev(data.diseases_mortality_norway$Leukaemia), "Alzheimer" = rev(data.diseases_mortality_norway$Alzheimer), "Pneumonia" = rev(data.diseases_mortality_norway$Pneumonia), "TotalDeaths"=rev(data.diseases_mortality_norway$Total.Deaths))
+
+data.diseases_mortality_norway_r
+```
+
+```{r}
+data.diseases_mortality_ukraine <- read.csv("DATASET_UKRAINE/MortalityDiseasesUkraine - Sheet1.csv")
+
+data.diseases_mortality_ukraine_r <- data.frame("Year" = rev(data.diseases_mortality_ukraine$Year), "Icheamic.Heart.Disease" = rev(data.diseases_mortality_ukraine$Icheamic.Heart.Disease), "Mental.and.behavioural.disorders" = rev(data.diseases_mortality_ukraine$Mental.and.behavioural.disorders), "Diseases.of.the.nervous.system" = rev(data.diseases_mortality_ukraine$Diseases.of.the.nervous.system), "Malignant.neoplasm.of.breast..female" = rev(data.diseases_mortality_ukraine$Malignant.neoplasm.of.breast..female), "Diabetes.mellitus" = rev(data.diseases_mortality_ukraine$Diabetes.mellitus), "Leukaemia" = rev(data.diseases_mortality_ukraine$Leukaemia), "Pneumonia" = rev(data.diseases_mortality_ukraine$Pneumonia), "TotalDeaths"=rev(data.diseases_mortality_ukraine$Total.Deaths))
+
+data.diseases_mortality_ukraine_r
+```
+
+```{r}
+data.diseases_mortality_belarus <- read.csv("DATASET_BELARUS/MortalityDiseasesBelarus - Sheet1.csv")
+
+data.diseases_mortality_belarus_r <- data.frame("Year" = rev(data.diseases_mortality_belarus$Year), "Icheamic.Heart.Disease" = rev(data.diseases_mortality_belarus$Icheamic.Heart.Disease), "Mental.and.behavioural.disorders" = rev(data.diseases_mortality_belarus$Mental.and.behavioural.disorders), "Diseases.of.the.nervous.system" = rev(data.diseases_mortality_belarus$Diseases.of.the.nervous.system), "Malignant.neoplasm.of.breast..female" = rev(data.diseases_mortality_belarus$Malignant.neoplasm.of.breast..female), "Diabetes.mellitus" = rev(data.diseases_mortality_belarus$Diabetes.mellitus), "Leukaemia" = rev(data.diseases_mortality_belarus$Leukaemia), "Pneumonia" = rev(data.diseases_mortality_belarus$Pneumonia), "TotalDeaths"=rev(data.diseases_mortality_belarus$Total.Deaths))
+
+data.diseases_mortality_belarus_r
+```
+
+Assigning values to the variables.
+```{r}
+year <- data.diseases_mortality_germany_r$Year
+icheamic_heart_disease_mortality_germany <- data.diseases_mortality_germany_r$Icheamic.Heart.Disease
+mental_behavioral_disorders_mortality_germany <- data.diseases_mortality_germany_r$Mental.and.behavioural.disorders
+nervous_system_mortality_germany <- data.diseases_mortality_germany_r$Diseases.of.the.nervous.system
+breast_cancer_mortality_germany <- data.diseases_mortality_germany_r$Malignant.neoplasm.of.breast..female
+diabetes_mortality_germany <- data.diseases_mortality_germany_r$Diabetes.mellitus
+leukaemia_mortality_germany <- data.diseases_mortality_germany_r$Leukaemia
+alzheimer_mortality_germany <- data.diseases_mortality_germany_r$Alzheimer
+pneumonia_mortality_germany <- data.diseases_mortality_germany_r$Pneumonia
+total_mortality_germany <- data.diseases_mortality_germany_r$TotalDeaths
+
+diseases_mortality_set <- c(icheamic_heart_disease_mortality_germany, mental_behavioral_disorders_mortality_germany, nervous_system_mortality_germany, breast_cancer_mortality_germany, diabetes_mortality_germany, leukaemia_mortality_germany, alzheimer_mortality_germany, pneumonia_mortality_germany)
+
+column_names <- colnames(data.diseases_mortality_germany_r)[2:10]
+```
+
+
+```{r}
+icheamic_heart_disease_mortality_norway <- data.diseases_mortality_norway_r$Icheamic.Heart.Disease
+mental_behavioral_disorders_mortality_norway <- data.diseases_mortality_norway_r$Mental.and.behavioural.disorders
+nervous_system_mortality_norway <- data.diseases_mortality_norway_r$Diseases.of.the.nervous.system
+breast_cancer_mortality_norway <- data.diseases_mortality_norway_r$Malignant.neoplasm.of.breast..female
+diabetes_mortality_norway <- data.diseases_mortality_norway_r$Diabetes.mellitus
+leukaemia_mortality_norway <- data.diseases_mortality_norway_r$Leukaemia
+alzheimer_mortality_norway <- data.diseases_mortality_norway_r$Alzheimer
+pneumonia_mortality_norway <- data.diseases_mortality_norway_r$Pneumonia
+total_mortality_norway <- data.diseases_mortality_norway_r$TotalDeaths
+```
+
+After plotting the values of icheamic heart disease mortality we can logically assume, that the data follows a downward trend, so we are going to check this by running linear regression.
+```{r}
+plot(icheamic_heart_disease_mortality_germany)
+trend_check <- lm(icheamic_heart_disease_mortality_germany ~ year)
+summary(trend_check)
+predicted <- predict(trend_check)
+abline(trend_check)
+```
+
+By the results we observe the high significance of time. Now, we are going to use built-in trend test to see whether all of the diseases data follow some trend.
+```{r}
+for (i in c(1:9)) {
+  cat(column_names[i], "\n")
+  print(trend.test(data.diseases_mortality_germany_r[,column_names[i]]))
+  cat("\n\n")
+}
+```
+
+Cannot compute exact p-value with ties warning. Ties - if dataset has equal values. (https://r.789695.n4.nabble.com/What-are-ties-Wilcox-u-test-td857059.html)
+```{r}
+for (i in c(1:8)) {
+  cat(column_names[i], "\n")
+  print(trend.test(data.diseases_mortality_norway_r[,column_names[i]]))
+  cat("\n\n")
+}
+```
+
+For Norway - Diabetes time series does not need a detrending because of a large p-value. The other ones require the detrending.
+
+DETRENDING
+```{r}
+icheamic_heart_disease_mortality_germany_detrended <- detrend(icheamic_heart_disease_mortality_germany)
+mental_behavioral_disorders_mortality_germany_detrended <- detrend(mental_behavioral_disorders_mortality_germany)
+nervous_system_mortality_germany_detrended <- detrend(nervous_system_mortality_germany)
+breast_cancer_mortality_germany_detrended <- detrend(breast_cancer_mortality_germany)
+diabetes_mortality_germany_detrended <- detrend(diabetes_mortality_germany)
+leukaemia_mortality_germany_detrended <- detrend(leukaemia_mortality_germany)
+alzheimer_mortality_germany_detrended <- detrend(alzheimer_mortality_germany)
+pneumonia_mortality_germany_detrended <- detrend(pneumonia_mortality_germany)
+total_mortality_germany_detrended <- detrend(total_mortality_germany)
+```
+
+```{r}
+icheamic_heart_disease_mortality_norway_detrended <- detrend(icheamic_heart_disease_mortality_norway)
+mental_behavioral_disorders_mortality_norway_detrended <- detrend(mental_behavioral_disorders_mortality_norway)
+nervous_system_mortality_norway_detrended <- detrend(nervous_system_mortality_norway)
+breast_cancer_mortality_norway_detrended <- detrend(breast_cancer_mortality_norway)
+diabetes_mortality_norway_detrended <- detrend(diabetes_mortality_norway)
+leukaemia_mortality_norway_detrended <- detrend(leukaemia_mortality_norway)
+alzheimer_mortality_norway_detrended <- detrend(alzheimer_mortality_norway)
+pneumonia_mortality_norway_detrended <- detrend(pneumonia_mortality_norway)
+total_mortality_norway_detrended <- detrend(total_mortality_norway)
+```
+
+LINEAR REGRESSION ON THE DEATH RATE BEING INFLUENCED BY THE DISEASES MORTALITY 
+```{r}
+death_rate_germany_1990_2015 <- death_rate_germany[41:66]
+overall_mortality_model_germany <- lm(death_rate_germany_1990_2015~icheamic_heart_disease_mortality_germany+nervous_system_mortality_germany+diabetes_mortality_germany+nervous_system_mortality_germany+leukaemia_mortality_germany+alzheimer_mortality_germany+pneumonia_mortality_germany+breast_cancer_mortality_germany)
+summary(overall_mortality_model_germany)
+```
+THE SAME REGRESSION BUT DETRENDED
+```{r}
+death_rate_germany_1990_2015_detrended <- detrend(death_rate_germany_1990_2015)
+overall_mortality_model_germany_detrended <- lm(death_rate_germany_1990_2015_detrended~icheamic_heart_disease_mortality_germany_detrended+nervous_system_mortality_germany_detrended+diabetes_mortality_germany_detrended+nervous_system_mortality_germany_detrended+leukaemia_mortality_germany_detrended+alzheimer_mortality_germany_detrended+pneumonia_mortality_germany_detrended+breast_cancer_mortality_germany_detrended)
+summary(overall_mortality_model_germany_detrended)
+```
+
+By results of the detrended regression we can see, that the icheamic heart disease, alzheimer, pneumonia, breast cancer mortality rates in our case influence the total death rate the most. 
+```{r}
+life_rate_germany <- data.life_expectancy_germany_r$Life.Expectancy
+life_rate_norway <- data.life_expectancy_norway_r$Life.Expectancy
+summary(lm(life_rate_germany~year_m))
+summary(lm(life_rate_norway~year_m))
+```
+
+The results show that the life expectancy rate has a time trend both in Germany and in Norway and thus has to be detrended.
+
+```{r}
+data.life_dentrended <- merge(data.life_expectancy_germany_r[, c("Year", "Life.Expectancy")], data.life_expectancy_norway_r[, c("Year", "Life.Expectancy")], by.x="Year", by.y="Year")
+
+ggplot(data.life_dentrended, aes(x=Year)) + geom_line(aes(y=Life.Expectancy.x, color="Germany")) + geom_line(aes(y=Life.Expectancy.y, color="Norway")) + geom_line(aes(y=detrend(Life.Expectancy.x), color="Germany"), linetype = "twodash") + geom_line(aes(y=detrend(Life.Expectancy.y), color="Norway"), linetype = "twodash") + scale_y_continuous(name="Life Expectancy") + scale_color_manual("Country", values=c("Germany"="steelblue", "Norway"="firebrick4")) + ggtitle("Life Expectancy Rate")
+```
+
+Run regression, where independent variables are mortalities from particular diseases and dependent is the life expectancy.
+```{r}
+life_rate_germany_1990_2015 <- life_rate_germany[41:66]
+life_expectancy_model_germany <- lm(life_rate_germany_1990_2015~icheamic_heart_disease_mortality_germany+nervous_system_mortality_germany+diabetes_mortality_germany+nervous_system_mortality_germany+leukaemia_mortality_germany+alzheimer_mortality_germany+pneumonia_mortality_germany+breast_cancer_mortality_germany)
+summary(life_expectancy_model_germany)
+```
+```{r}
+life_rate_germany_1990_2015_detrended <- detrend(life_rate_germany_1990_2015) 
+life_expectancy_model_germany_detrended <- lm(life_rate_germany_1990_2015_detrended~icheamic_heart_disease_mortality_germany_detrended+nervous_system_mortality_germany_detrended+diabetes_mortality_germany_detrended+nervous_system_mortality_germany_detrended+leukaemia_mortality_germany_detrended+alzheimer_mortality_germany_detrended+pneumonia_mortality_germany_detrended+breast_cancer_mortality_germany_detrended)
+summary(life_expectancy_model_germany_detrended)
+```
+
+The results showed that it is slightly influenced by pneumonia mortality and Alzheimer disease. 
+
+https://academic.oup.com/heapol/article/27/1/76/659122
+
+SEGMENTED LINEAR REGRESSION
+To see the effect of the reform
+```{r}
+time <- c(1:length(year)) #as we have data from 1990 to 2015
+reform <- c(rep(0, 13), rep(1, 13)) # 0 - year with no reform, 1 - year with reform
+postslope <- c(rep(0, 13), c(1:13))
+
+#WITH TREND
+icheamic_segmented_model <- lm(icheamic_heart_disease_mortality_germany~time+reform+postslope)
+summary(icheamic_segmented_model)
+```
+
+```{r}
+breast_cancer_mortality_germany_model <- lm(breast_cancer_mortality_germany~time+reform+postslope)
+summary(breast_cancer_mortality_germany_model)
+```
+
+```{r}
+diabetes_mortality_germany_model <- lm(diabetes_mortality_germany~time+reform+postslope)
+summary(diabetes_mortality_germany_model)
+```
+
+FORMING A DATASET TO PLOT GERMANY AND NORWAY DATA 
+```{r}
+norway_germany <- merge(data.diseases_mortality_germany_r, data.diseases_mortality_norway_r, by.x="Year", by.y="Year")
+norway_germany
+```
+
+Parallel Trend Assumption
+It requires that in the absence of treatment, the difference between the 'treatment' and 'control' group is constant over time. Although there is no statistical test for this assumption, visual inspection is useful when you have observations over many time points.
+
+VISUAL INSPECTION OF PARALLEL TREND TO RUN DIF IN DIF]
+Plot predicted trend line of the diseases. 
+```{r}
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=icheamic_heart_disease_mortality_germany, color="Germany")) + geom_line(aes(y=icheamic_heart_disease_mortality_norway, color="Norway")) + geom_line(aes(y=icheamic_heart_disease_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=icheamic_heart_disease_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Icheamic Heart Disease") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany[6:13,], aes(x=year[6:13])) + geom_line(aes(y=predict(lm(icheamic_heart_disease_mortality_germany[6:13]~c(1995:2002))), color="Germany")) + geom_line(aes(y=predict(lm(icheamic_heart_disease_mortality_norway[6:13]~c(1995:2002))), color="Norway")) + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Icheamic Heart Disease")
+```
+
+```{r}
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=diabetes_mortality_germany, color="Germany")) + geom_line(aes(y=diabetes_mortality_norway, color="Norway")) + geom_line(aes(y=diabetes_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=diabetes_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkslateblue", "Norway"="firebrick4")) + ggtitle("Diabetes") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany[1:13,], aes(x=year[1:13])) + geom_line(aes(y=predict(lm(diabetes_mortality_germany[1:13]~c(1990:2002))), color="Germany")) + geom_line(aes(y=predict(lm(diabetes_mortality_norway[1:13]~c(1990:2002))), color="Norway")) + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Diabetes")
+```
+
+```{r}
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=breast_cancer_mortality_germany, color="Germany")) + geom_line(aes(y=breast_cancer_mortality_norway, color="Norway")) + geom_line(aes(y=breast_cancer_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=breast_cancer_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="indianred4", "Norway"="orchid3")) + ggtitle("Breast Cancer") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany[1:13,], aes(x=year[1:13])) + geom_line(aes(y=predict(lm(breast_cancer_mortality_germany[1:13]~c(1990:2002))), color="Germany")) + geom_line(aes(y=predict(lm(breast_cancer_mortality_norway[1:13]~c(1990:2002))), color="Norway")) + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Breast Cancer")
+```
+
+VISUAL OVERVIEW OF THE DISEASES NOT INFLUENCED BY THE REFORM
+```{r}
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=mental_behavioral_disorders_mortality_germany, color="Germany")) + geom_line(aes(y=mental_behavioral_disorders_mortality_norway, color="Norway")) + geom_line(aes(y=mental_behavioral_disorders_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=mental_behavioral_disorders_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Mental Illnesses") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=nervous_system_mortality_germany, color="Germany")) + geom_line(aes(y=nervous_system_mortality_norway, color="Norway")) + geom_line(aes(y=nervous_system_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=nervous_system_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Nervous System Diseases") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=leukaemia_mortality_germany, color="Germany")) + geom_line(aes(y=leukaemia_mortality_norway, color="Norway")) + geom_line(aes(y=leukaemia_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=leukaemia_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Leukaemia") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=alzheimer_mortality_germany, color="Germany")) + geom_line(aes(y=alzheimer_mortality_norway, color="Norway")) + geom_line(aes(y=alzheimer_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=alzheimer_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Alzheimer") + geom_vline(xintercept = 2002, color="red")
+
+ggplot(norway_germany, aes(x=year)) + geom_line(aes(y=pneumonia_mortality_germany, color="Germany")) + geom_line(aes(y=pneumonia_mortality_norway, color="Norway")) + geom_line(aes(y=pneumonia_mortality_germany_detrended, color="Germany"), linetype="twodash") + geom_line(aes(y=pneumonia_mortality_norway_detrended, color="Norway"), linetype="twodash") + scale_y_continuous(name="Mortality per 100.000") + scale_color_manual("Country", values=c("Germany"="darkred", "Norway"="steelblue")) + ggtitle("Pneumonia") + geom_vline(xintercept = 2002, color="red")
+```
+
+
+DIF IN DIF  (https://www.mailman.columbia.edu/research/population-health-methods/difference-difference-estimation)
+```{r}
+did.dataframe <- data.frame("Country"=c(rep("Germany",26), rep("Norway", 26)), "Treatment"=c(rep(1, 26), rep(0, 26)), "Year"=c(c(1990:2015), c(1990:2015)), "YearDummy" = c(rep(0, 13), rep(1, 13), rep(0, 13), rep(1, 13)), "MortalityIcheamic"=c(data.diseases_mortality_germany_r$Icheamic.Heart.Disease, data.diseases_mortality_norway_r$Icheamic.Heart.Disease), "MortalityDiabetes"=c(data.diseases_mortality_germany_r$Diabetes.mellitus, data.diseases_mortality_norway_r$Diabetes.mellitus), "MortalityBreastCancer"=c(data.diseases_mortality_germany_r$Malignant.neoplasm.of.breast..female, data.diseases_mortality_norway_r$Malignant.neoplasm.of.breast..female))
+
+did.dataframe
+```
+
+```{r}
+did.dataframe_icheamic <- data.frame("Country"=c(rep("Germany",21), rep("Norway", 21)), "Treatment"=c(rep(1, 21), rep(0, 21)), "Year"=c(c(1995:2015), c(1995:2015)), "YearDummy" = c(rep(0, 8), rep(1, 13), rep(0, 8), rep(1, 13)), "MortalityIcheamic"=c(data.diseases_mortality_germany_r$Icheamic.Heart.Disease[6:26], data.diseases_mortality_norway_r$Icheamic.Heart.Disease[6:26]))
+did.dataframe_icheamic
+```
+
+
+```{r}
+did.mortality_icheamic <- did.dataframe_icheamic$MortalityIcheamic
+did.treatment_icheamic <- did.dataframe_icheamic$Treatment
+did.year_dummy_icheamic <- did.dataframe_icheamic$YearDummy
+did.d_icheamic <- did.treatment_icheamic*did.year_dummy_icheamic
+did.model_icheamic_lm <- lm(did.mortality_icheamic~did.treatment_icheamic+did.year_dummy_icheamic+did.d_icheamic)
+did.model_icheamic_rlm <- rlm(did.mortality_icheamic~did.treatment_icheamic+did.year_dummy_icheamic+did.d_icheamic)
+summary(did.model_icheamic_lm)
+summary(did.model_icheamic_rlm)
+```
+t-value > critical value
+1.01 < 1.68
+
+```{r}
+did.mortality_diabetes <- did.dataframe$MortalityDiabetes
+did.treatment <- did.dataframe$Treatment
+did.year_dummy <- did.dataframe$YearDummy
+did.d <- did.treatment*did.year_dummy
+did.model_diabetes_lm <- lm(did.mortality_diabetes~did.treatment+did.year_dummy+did.d)
+did.model_diabetes_rlm <- rlm(did.mortality_diabetes~did.treatment+did.year_dummy+did.d)
+summary(did.model_diabetes_lm)
+summary(did.model_diabetes_rlm)
+```
+
+```{r}
+did.mortality_breast_cancer <- did.dataframe$MortalityBreastCancer
+did.model_breast_cancer_lm <- lm(did.mortality_breast_cancer~did.treatment+did.year_dummy+did.d)
+did.model_breast_cancer_rlm <- rlm(did.mortality_breast_cancer~did.treatment+did.year_dummy+did.d)
+summary(did.model_breast_cancer_lm)
+summary(did.model_breast_cancer_rlm)
+```
+
+```{r}
+data.diseases_mortality_belarus_r[complete.cases(data.diseases_mortality_belarus_r),]
+data.diseases_mortality_ukraine_r[complete.cases(data.diseases_mortality_ukraine_r),]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
